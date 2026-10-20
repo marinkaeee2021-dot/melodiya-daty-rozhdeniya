@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Как звучит дата рождения?</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #101e38;
+  color: #f7f0df;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+main {
+  width: 100%;
+  max-width: 650px;
+  padding: 36px 25px;
+  text-align: center;
+  background: #1b2d4b;
+  border: 1px solid #b99b61;
+  border-radius: 18px;
+}
+h1 { color: #e6c587; font-size: 32px; }
+p { line-height: 1.6; }
+input {
+  width: 100%;
+  max-width: 280px;
+  padding: 14px;
+  font-size: 20px;
+  text-align: center;
+  border-radius: 9px;
+  border: 1px solid #d7c5a3;
+}
+button {
+  display: block;
+  margin: 20px auto;
+  padding: 14px 28px;
+  background: #e6c587;
+  color: #101e38;
+  border: none;
+  border-radius: 9px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+#result { margin-top: 25px; }
+.notes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+}
+.note {
+  min-width: 58px;
+  padding: 12px 7px;
+  background: #f7f0df;
+  color: #101e38;
+  border-radius: 8px;
+}
+.digit { font-size: 13px; color: #74664d; }
+.sound { font-size: 18px; font-weight: bold; }
+footer { margin-top: 35px; font-size: 13px; color: #c7bda9; }
+</style>
+</head>
+<body>
+<main>
+  <div style="font-size:42px">♫</div>
+  <h1>Как звучит дата рождения?</h1>
+  <p>Введи дату рождения и узнай, какие музыкальные
+  ноты скрываются в её цифрах!</p>
+
+  <input id="birthday" placeholder="ДД.ММ.ГГГГ"
+         maxlength="10" inputmode="numeric">
+  <button onclick="calculate()">Узнать мелодию</button>
+
+  <div id="result" aria-live="polite"></div>
+
+  <footer>
+    Исследовательский проект Дмитрия Пузырева
+  </footer>
+</main>
+
+<script>
+function calculate() {
+  const value = document.getElementById("birthday").value.trim();
+  const result = document.getElementById("result");
+
+  if (!/^\d{2}\.\d{2}\.\d{4}$/.test(value)) {
+    result.textContent = "Введи дату в формате ДД.ММ.ГГГГ";
+    return;
+  }
+
+  const [day, month, year] = value.split(".").map(Number);
+  const date = new Date(year, month - 1, day);
+
+  if (year < 100 || date.getFullYear() !== year ||
+      date.getMonth() !== month - 1 ||
+      date.getDate() !== day) {
+    result.textContent = "Проверь дату рождения";
+    return;
+  }
+
+  const mapping = {
+    "1":"до", "2":"ре", "3":"ми", "4":"фа",
+    "5":"соль", "6":"ля", "7":"си",
+    "8":"до", "9":"ре", "0":"ми"
+  };
+
+  const digits = value.replace(/\./g, "");
+  const notes = [...digits].map(digit => mapping[digit]);
+
+  result.innerHTML =
+    "<p>Твоя дата рождения звучит так:</p>" +
+    '<div class="notes">' +
+    [...digits].map((digit, i) =>
+      '<div class="note"><div class="digit">' + digit +
+      '</div><div class="sound">' + notes[i] +
+      '</div></div>'
+    ).join("") +
+    "</div>";
+}
+</script>
+</body>
+</html>
