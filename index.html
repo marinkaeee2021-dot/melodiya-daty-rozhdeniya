@@ -157,10 +157,11 @@ async function playMelody() {
     "0": 329.63  // ми
   };
 
-  audioContext = audioContext ||
-    new (window.AudioContext || window.webkitAudioContext)();
+  if (!audioContext) {
+  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+}
 
-  await audioContext.resume();
+audioContext.resume();
 
   isPlaying = true;
   const button = document.getElementById("playButton");
