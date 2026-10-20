@@ -86,7 +86,9 @@ footer { margin-top: 35px; font-size: 13px; color: #c7bda9; }
   <button id="playButton" onclick="playMelody()" style="display:none">
   ▶ Прослушать мелодию
 </button>
-
+<button id="fairyButton" onclick="playFairyMelody()" style="display:none">
+  ♫ Прослушать сказочную мелодию
+</button>
   <footer>
     Исследовательский проект Дмитрия Пузырева
   </footer>
@@ -95,6 +97,7 @@ footer { margin-top: 35px; font-size: 13px; color: #c7bda9; }
 <script>
 function calculate() {
   document.getElementById("playButton").style.display = "none";
+  document.getElementById("fairyButton").style.display = "none";
   const value = document.getElementById("birthday").value.trim();
   const result = document.getElementById("result");
 
@@ -132,6 +135,7 @@ function calculate() {
     ).join("") +
     "</div>";
   document.getElementById("playButton").style.display = "inline-block";
+  document.getElementById("fairyButton").style.display = "inline-block";
 }
 let audioContext;
 let isPlaying = false;
@@ -195,7 +199,67 @@ audioContext.resume();
     button.disabled = false;
   }, 3700);
 }
+function playFairyMelody() {
+  if (isPlaying) return;
 
+  const digits = document.getElementById("birthday")
+    .value.replace(/\D/g, "");
+
+  if (digits.length !== 8) return;
+
+  const notes = {
+    "1": 261.63, "2": 293.66,
+    "3": 329.63, "4": 349.23,
+    "5": 392.00, "6": 440.00,
+    "7": 493.88, "8": 261.63,
+    "9": 293.66, "0": 329.63
+  };
+
+  const ctx = audioContext ||
+    new (window.AudioContext || window.webkitAudioContext)();
+
+  audioContext = ctx;
+  ctx.resume();
+
+  isPlaying = true;
+
+  const rhythm = [0, 0.55, 1.1, 1.9, 2.45, 3, 3.55, 4.35];
+  const start = ctx.currentTime + 0.1;
+
+  function sound(frequency, time, duration, loudness) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(frequency, time);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.exponentialRampToValueAtTime(loudness, time + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+
+    osc.start(time);
+    osc.stop(time + duration + 0.02);
+  }
+
+  [...digits].forEach((digit, i) => {
+    const time = start + rhythm[i];
+    const duration = i === 7 ? 1.4 : 0.65;
+    const frequency = notes[digit];
+
+    // Основная мелодия — строго восемь нот по алгоритму
+    sound(frequency, time, duration, 0.2);
+
+    // Тихий перелив, как у музыкальной шкатулки
+    sound(frequency * 2, time + 0.06, duration * 0.8, 0.035);
+  });
+
+  setTimeout(() => {
+    isPlaying = false;
+  }, 6000);
+}
 </script>
 </body>
 </html>
