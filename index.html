@@ -86,9 +86,7 @@ footer { margin-top: 35px; font-size: 13px; color: #c7bda9; }
   <button id="playButton" onclick="playMelody()" style="display:none">
   ▶ Прослушать мелодию
 </button>
-<button id="fairyButton" onclick="playFairyMelody()" style="display:none">
-  ♫ Прослушать сказочную мелодию
-</button>
+
   <footer>
     Исследовательский проект Дмитрия Пузырева
   </footer>
@@ -97,7 +95,7 @@ footer { margin-top: 35px; font-size: 13px; color: #c7bda9; }
 <script>
 function calculate() {
   document.getElementById("playButton").style.display = "none";
-  document.getElementById("fairyButton").style.display = "none";
+ 
   const value = document.getElementById("birthday").value.trim();
   const result = document.getElementById("result");
 
@@ -135,7 +133,7 @@ function calculate() {
     ).join("") +
     "</div>";
   document.getElementById("playButton").style.display = "inline-block";
-  document.getElementById("fairyButton").style.display = "inline-block";
+ 
 }
 let audioContext;
 let isPlaying = false;
@@ -199,100 +197,7 @@ audioContext.resume();
     button.disabled = false;
   }, 3700);
 }
-function playFairyMelody() {
-  if (isPlaying) return;
 
-  const digits = document.getElementById("birthday")
-    .value.replace(/\D/g, "");
-
-  if (digits.length !== 8) return;
-
-  const notes = {
-    "1": 261.63, "2": 293.66,
-    "3": 329.63, "4": 349.23,
-    "5": 392.00, "6": 440.00,
-    "7": 493.88, "8": 261.63,
-    "9": 293.66, "0": 329.63
-  };
-
-  const Audio = window.AudioContext || window.webkitAudioContext;
-  audioContext = audioContext || new Audio();
-  const ctx = audioContext;
-
-  // Запускаем звук после нажатия кнопки
-  ctx.resume();
-
-  isPlaying = true;
-  const start = ctx.currentTime + 0.15;
-
-  // Мягкий звук с плавным затуханием
-  function tone(freq, when, duration, volume, type = "sine") {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, when);
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    gain.gain.setValueAtTime(0.0001, when);
-    gain.gain.exponentialRampToValueAtTime(
-      volume, when + 0.035
-    );
-    gain.gain.exponentialRampToValueAtTime(
-      0.0001, when + duration
-    );
-
-    osc.start(when);
-    osc.stop(when + duration + 0.03);
-  }
-
-  // Тихие аккорды создают сказочный фон
-  const chords = [
-    [261.63, 329.63, 392.00],
-    [220.00, 261.63, 349.23],
-    [174.61, 261.63, 349.23],
-    [196.00, 246.94, 392.00],
-    [261.63, 329.63, 392.00]
-  ];
-
-  chords.forEach((chord, index) => {
-    const time = start + index * 2;
-
-    chord.forEach(freq => {
-      tone(freq, time, 2.5, 0.012, "sine");
-    });
-  });
-
-  // Восемь главных нот строго по алгоритму Димы
-  const rhythm = [
-    0.3, 1.15, 2.0, 3.1,
-    4.0, 5.0, 6.0, 7.2
-  ];
-
-  [...digits].forEach((digit, i) => {
-    const time = start + rhythm[i];
-    const freq = notes[digit];
-    const duration = i === 7 ? 2.2 : 0.85;
-
-    // Основной голос — мягкое фортепиано
-    tone(freq, time, duration, 0.15, "triangle");
-    tone(freq * 2, time, duration * 0.65, 0.018);
-
-    // Лёгкий перелив колокольчика
-    tone(freq * 2, time + 0.12, 0.65, 0.012);
-  });
-
-  // Нежное заключительное созвучие
-  [261.63, 329.63, 392.00, 523.25].forEach(freq => {
-    tone(freq, start + 9.5, 1.8, 0.018);
-  });
-
-  setTimeout(() => {
-    isPlaying = false;
-  }, 11500);
-}
 </script>
 </body>
 </html>
