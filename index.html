@@ -77,7 +77,8 @@ footer { margin-top: 35px; font-size: 13px; color: #c7bda9; }
   ноты скрываются в её цифрах!</p>
 
   <input id="birthday" placeholder="ДД.ММ.ГГГГ"
-         maxlength="10" inputmode="numeric">
+    oninput="let d=this.value.replace(/\D/g,'').slice(0,8);this.value=d.slice(0,2)+(d.length>2?'.'+d.slice(2,4):'')+(d.length>4?'.'+d.slice(4):'');"
+         maxlength="10" inputmode="text">
   <button onclick="calculate()">Узнать мелодию</button>
 
   <div id="result" aria-live="polite"></div>
