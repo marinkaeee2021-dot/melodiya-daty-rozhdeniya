@@ -173,13 +173,13 @@ audioContext.resume();
     const oscillator = audioContext.createOscillator();
     const volume = audioContext.createGain();
 
-    oscillator.type = "sine";
+    oscillator.type = "triangle";
     oscillator.frequency.value = frequencies[digit];
 
     oscillator.connect(volume);
     volume.connect(audioContext.destination);
 
-    const time = start + i * 0.45;
+    const time = start + i * 0.45 + (i % 2 ? 0.08 : 0);
 
     volume.gain.setValueAtTime(0, time);
     volume.gain.linearRampToValueAtTime(0.25, time + 0.02);
