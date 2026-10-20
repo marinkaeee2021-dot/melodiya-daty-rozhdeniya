@@ -215,50 +215,83 @@ function playFairyMelody() {
     "9": 293.66, "0": 329.63
   };
 
-  const ctx = audioContext ||
-    new (window.AudioContext || window.webkitAudioContext)();
+  const Audio = window.AudioContext || window.webkitAudioContext;
+  audioContext = audioContext || new Audio();
+  const ctx = audioContext;
 
-  audioContext = ctx;
+  // Запускаем звук после нажатия кнопки
   ctx.resume();
 
   isPlaying = true;
+  const start = ctx.currentTime + 0.15;
 
-  const rhythm = [0, 0.55, 1.1, 1.9, 2.45, 3, 3.55, 4.35];
-  const start = ctx.currentTime + 0.1;
-
-  function sound(frequency, time, duration, loudness) {
+  // Мягкий звук с плавным затуханием
+  function tone(freq, when, duration, volume, type = "sine") {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
 
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(frequency, time);
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, when);
 
     osc.connect(gain);
     gain.connect(ctx.destination);
 
-    gain.gain.setValueAtTime(0.0001, time);
-    gain.gain.exponentialRampToValueAtTime(loudness, time + 0.03);
-    gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+    gain.gain.setValueAtTime(0.0001, when);
+    gain.gain.exponentialRampToValueAtTime(
+      volume, when + 0.035
+    );
+    gain.gain.exponentialRampToValueAtTime(
+      0.0001, when + duration
+    );
 
-    osc.start(time);
-    osc.stop(time + duration + 0.02);
+    osc.start(when);
+    osc.stop(when + duration + 0.03);
   }
+
+  // Тихие аккорды создают сказочный фон
+  const chords = [
+    [261.63, 329.63, 392.00],
+    [220.00, 261.63, 349.23],
+    [174.61, 261.63, 349.23],
+    [196.00, 246.94, 392.00],
+    [261.63, 329.63, 392.00]
+  ];
+
+  chords.forEach((chord, index) => {
+    const time = start + index * 2;
+
+    chord.forEach(freq => {
+      tone(freq, time, 2.5, 0.012, "sine");
+    });
+  });
+
+  // Восемь главных нот строго по алгоритму Димы
+  const rhythm = [
+    0.3, 1.15, 2.0, 3.1,
+    4.0, 5.0, 6.0, 7.2
+  ];
 
   [...digits].forEach((digit, i) => {
     const time = start + rhythm[i];
-    const duration = i === 7 ? 1.4 : 0.65;
-    const frequency = notes[digit];
+    const freq = notes[digit];
+    const duration = i === 7 ? 2.2 : 0.85;
 
-    // Основная мелодия — строго восемь нот по алгоритму
-    sound(frequency, time, duration, 0.2);
+    // Основной голос — мягкое фортепиано
+    tone(freq, time, duration, 0.15, "triangle");
+    tone(freq * 2, time, duration * 0.65, 0.018);
 
-    // Тихий перелив, как у музыкальной шкатулки
-    sound(frequency * 2, time + 0.06, duration * 0.8, 0.035);
+    // Лёгкий перелив колокольчика
+    tone(freq * 2, time + 0.12, 0.65, 0.012);
+  });
+
+  // Нежное заключительное созвучие
+  [261.63, 329.63, 392.00, 523.25].forEach(freq => {
+    tone(freq, start + 9.5, 1.8, 0.018);
   });
 
   setTimeout(() => {
     isPlaying = false;
-  }, 6000);
+  }, 11500);
 }
 </script>
 </body>
