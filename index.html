@@ -179,15 +179,15 @@ audioContext.resume();
     oscillator.connect(volume);
     volume.connect(audioContext.destination);
 
-    const time = start + i * 0.45 + (i % 2 ? 0.08 : 0);
+    const time = start + [0, 0.25, 0.5, 0.95, 1.2, 1.45, 1.9, 2.2][i];
 
     volume.gain.setValueAtTime(0, time);
     volume.gain.linearRampToValueAtTime(0.25, time + 0.02);
-    volume.gain.setValueAtTime(0.25, time + 0.32);
-    volume.gain.linearRampToValueAtTime(0, time + 0.4);
+   volume.gain.setValueAtTime(0.25, time + (i === 7 ? 0.55 : 0.15));
+    volume.gain.linearRampToValueAtTime(0, time + (i === 7 ? 0.7 : 0.22));
 
     oscillator.start(time);
-    oscillator.stop(time + 0.41);
+    oscillator.stop(time + (i === 7 ? 0.72 : 0.24));
   });
 
   setTimeout(() => {
